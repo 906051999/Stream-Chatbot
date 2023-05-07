@@ -25,6 +25,10 @@ const (
 	Azure  PlatForm = "azure"
 )
 
+type Temp struct {
+	Data interface{} `json:"data"`
+}
+
 type AzureConfig struct {
 	BaseURL        string
 	ResourceName   string
@@ -157,7 +161,18 @@ func (gpt *ChatGPT) doAPIRequestWithRetry(url, method string,
 		return err
 	}
 
-	err = json.Unmarshal(body, responseBody)
+	var temp Temp
+	err2 := json.Unmarshal(body, &temp)
+	if err2 != nil {
+		return err2
+	}
+
+	dataBytes, err := json.Marshal(temp.Data)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(dataBytes, responseBody)
 	if err != nil {
 		return err
 	}
